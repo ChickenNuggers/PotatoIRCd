@@ -36,7 +36,6 @@ is_str = (input)-> type(input) == "string"
 -- @tparam table input Values to be verified
 check_config = (input)->
 	check input, "server_name", is_str
-	check input, "server_pass", is_str
 	default input, "hostname", "0.0.0.0", is_str -- all interfaces
 	default input, "port", 6697, tonumber -- tls only
 	default input, "ssl_ctx", {"ssl/cert.pem", "ssl/key.pem"}, ((a)-> #a == 2)
