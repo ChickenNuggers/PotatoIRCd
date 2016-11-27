@@ -38,6 +38,7 @@ is_str = (input)-> type(input) == "string"
 -- @tparam table input Values to be verified
 check_config = (input)->
 	check input, "server_name", is_str
+	check input, "vhost", is_str
 	default input, "hostname", "0.0.0.0", is_str -- all interfaces
 	default input, "port", 6697, tonumber -- tls only
 	default input, "ssl_ctx", {"ssl/cert.pem", "ssl/key.pem"}, ((a)-> #a == 2)
@@ -81,6 +82,18 @@ transform_value = (escaped_value)->
 		"\\n": "\n"
 	})[escaped_value]
 
+--- Substitute invalid tag values for escaped ones
+-- @tparam string unescaped_string
+-- @usage serialize_tag_value "hello world; i am dave"
+serialize_tag_value = (unescaped_string)->
+	return unescaped_string\gsub "[; \\\r\n]", {
+		";": "\\:"
+		" ": "\s"
+		"\\": "\\\\"
+		"\r": "\\r"
+		"\n": "\\n"
+	}
+
 --- Compile an IRCv3 message into a JSON tree
 -- @function line_pattern:match
 -- @tparam string input
@@ -116,4 +129,5 @@ hash = (input, algorithm="sha512")-> base16 digest.new(algorithm)\final(input)
 
 {
 	:line_pattern, :load_config, :check_config, :base16, :hash
+	:serialize_tag_value
 }
