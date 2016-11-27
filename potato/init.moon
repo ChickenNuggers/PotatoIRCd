@@ -12,7 +12,7 @@
 exports = {
 	init: ((new_config)-> exports.config[k] = v for k, v in pairs(new_config))
 	config: {} -- until `init` is called
-	state: (require "potato.state")!
+	state: require "potato.state"
 	client: require "potato.client"
 	util: require "potato.util"
 }
