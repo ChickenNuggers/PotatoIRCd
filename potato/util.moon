@@ -4,6 +4,7 @@
 -- @module util
 
 import compile from require "re"
+import dofile from require "moonscript.base"
 digest = require "openssl.digest"
 
 --- Check if type `name` exists in config
@@ -12,7 +13,8 @@ digest = require "openssl.digest"
 -- @tparam string name Name of configuration value
 -- @tparam function filter Function to act as verification filter (can be nil)
 check = (config, name, filter)->
-	assert filter config[name], "Bad value for #{name}" if filter
+	assert filter(config[name]),
+		"Bad value for #{name}: #{config[name]}" if filter
 	error "Missing field #{name}" if not config[name]
 
 --- Set a value if it does not exist, then check with a filter
@@ -25,7 +27,7 @@ default = (config, name, value, filter)->
 	if not config[name]
 		config[name] = value
 	elseif filter
-		assert filter config[name], "Bad value for #{name}"
+		assert filter(config[name]), "Bad value for #{name}: #{config[name]}"
 
 --- Verifies if an input is a string (used in @{check_config})
 -- @tparam string input Verifiable input
@@ -40,6 +42,7 @@ check_config = (input)->
 	default input, "port", 6697, tonumber -- tls only
 	default input, "ssl_ctx", {"ssl/cert.pem", "ssl/key.pem"}, ((a)-> #a == 2)
 	default input, "server_pass", false, is_str
+	return input
 
 --- Check for "$XDG\_CONFIG\_HOME", default to $HOME/.config
 -- @lfunction get_xdg_config_path
@@ -112,5 +115,5 @@ base16 = (input)->
 hash = (input, algorithm="sha512")-> base16 digest.new(algorithm)\final(input)
 
 {
-	:line_pattern, :load_config, :base16, :hash
+	:line_pattern, :load_config, :check_config, :base16, :hash
 }
