@@ -4,9 +4,16 @@
 -- @classmod client
 
 import line_pattern, hash from require "potato.util"
+import context_from_pair from require "potato.tls"
 state = require "potato.state"
 
 class client
+	--- Initiate a TLS handshake on a socket if available
+	wrap_socket: (socket)->
+		if state.tls_ctx
+			-- ::TODO:: Alpn | SNI
+			@socket\starttls state.tls_ctx
+
 	--- Register client and establish IRCv3 capabilities
 	-- @param socket Connection to client (cqueues.socket)
 	-- @usage for socket in server\clients!
@@ -14,6 +21,7 @@ class client
 	-- 		potato.client socket
 	new: (socket)=>
 		@socket = socket
+		@wrap_socket!
 		@channels = {}
 		@monitored_by = {}
 		{@config} = require "potato"
@@ -45,7 +53,7 @@ class client
 		@socket\write "ERROR: #{message}\n"
 		@quit message
 
-	--- Send a message to every channel the user is in; terminate connection.
+	--- Send `QUIT` to every channel the user is in; terminate connection.
 	-- @tparam string message Message to send to clients
 	quit: (message)=>
 		-- ::TODO:: remove channels if user is in last
