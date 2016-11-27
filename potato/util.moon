@@ -44,7 +44,7 @@ check_config = (input)->
 --- Check for "$XDG\_CONFIG\_HOME", default to $HOME/.config
 -- @lfunction get_xdg_config_path
 get_xdg_config_path = ()->
-	os.getenv "XDG_CONFIG_HOME" or ("#{os.getenv 'HOME'}/.config")
+	os.getenv("XDG_CONFIG_HOME") or ("#{os.getenv 'HOME'}/.config")
 
 --- Returns default configuration path
 -- @lfunction get_default_config_path
