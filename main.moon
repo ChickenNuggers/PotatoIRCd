@@ -33,7 +33,9 @@ log = require "log"
 {util: {:load_config, :check_config, :hash}
 :client
 :init
-:config} = require "potato"
+:config
+:state
+tls: {:context_from_pair}} = require "potato"
 getopt = require "getopt"
 
 args = getopt {...}, "c:g", {
@@ -55,6 +57,8 @@ print "Version 0.1.0-alpha"
 print!
 
 init check_config load_config args.c
+
+state.tls_ctx = context_from_pair unpack config.ssl_ctx
 
 server = socket.listen config.hostname, config.port
 loop = cqueues.new!
