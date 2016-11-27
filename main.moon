@@ -58,6 +58,7 @@ print!
 
 init check_config load_config args.c
 
+state.config = config
 state.tls_ctx = context_from_pair unpack config.ssl_ctx
 
 server = socket.listen config.hostname, config.port
