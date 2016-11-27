@@ -28,6 +28,7 @@ SOFTWARE.
 ]]
 
 cqueues = require "cqueues"
+socket = require "socket"
 log = require "log"
 {util: {:load_config, :check_config, :hash}
 :client
@@ -47,14 +48,20 @@ if args.g
 	os.execute "stty echo"
 	os.exit!
 
+print!
+print line for line in io.lines "asciilogo"
+print!
+print "Version 0.1.0-alpha"
+print!
+
 init check_config load_config args.c
 
-server = cqueues.listen config.hostname, config.port
+server = socket.listen config.hostname, config.port
 loop = cqueues.new!
 
 loop\wrap ->
 	for client in server\clients do
-		loop\wrap client(client)
+		loop\wrap -> client(client)
 
 while not loop\empty!
 	with ok, err = pcall loop.step, loop
