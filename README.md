@@ -22,6 +22,10 @@ should use the MoonScript table format with the following fields:
 	-- the network. This should be kept the same through all linked servers.
 	server_name: "PotatoNet"
 
+	-- The vhost is how the server will display itself when sending numerics
+	-- to the client. This should be set to the domain name of the server.
+	vhost: "potatoircd.rocks"
+
 	-- The server_pass option can optionally take a base16 encoded SHA512 hash
 	-- of the server password. Comment out or remove the line for no password.
 	--
