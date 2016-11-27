@@ -103,7 +103,8 @@ line_pattern = compile [[
 --- Create a base16 string from a binary string
 -- @tparam string input Binary input
 -- @treturn string Base16 output
-base16 = (input)-> table.concat [("%02x")\format ch for ch in input\gmatch "."]
+base16 = (input)->
+	table.concat [("%02x")\format ch\byte! for ch in input\gmatch "."]
 
 --- Generate a hash using OpenSSL
 -- @tparam string input Hashable input
