@@ -29,13 +29,23 @@ SOFTWARE.
 
 cqueues = require "cqueues"
 log = require "log"
-{util: {:load_config, :check_config}
+{util: {:load_config, :check_config, :hash}
 :client
 :init
 :config} = require "potato"
 getopt = require "getopt"
 
-args = getopt {...}, "c:", {config: "c"}
+args = getopt {...}, "c:g", {
+	config: "c"
+	"gen-password-hash": "g"
+}
+
+if args.g
+	os.execute "stty -echo echonl"
+	io.write "Password: "
+	print "Hash: #{hash io.read!}"
+	os.execute "stty echo"
+	os.exit!
 
 init check_config load_config args.c
 
