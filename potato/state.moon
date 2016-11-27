@@ -3,6 +3,9 @@
 -- @author ChickenNuggers
 -- @module state
 
+--- @table state
+-- @field tls_ctx TLS context
+
 users = {}
 channels = {}
 
