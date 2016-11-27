@@ -109,7 +109,7 @@ base16 = (input)-> table.concat [("%02x")\format ch for ch in input\gmatch "."]
 -- @tparam string input Hashable input
 -- @tparam string algorithm Hashing algorithm to use, defaults to sha512
 -- @treturn string @{base16} formatted hash of `input`
-hash = (input, algorithm="sha512")-> base16 digest.new(algorithm):final(input)
+hash = (input, algorithm="sha512")-> base16 digest.new(algorithm)\final(input)
 
 {
 	:line_pattern, :load_config, :base16, :hash
