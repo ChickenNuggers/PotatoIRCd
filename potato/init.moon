@@ -3,6 +3,9 @@
 -- @author ChickenNuggers
 -- @module potato
 
+package.loaded.config = {}
+
+local exports
 --- @table exports
 -- @field init Function for initializing config.
 -- @field config Placeholder table until initialized.
@@ -11,10 +14,11 @@
 -- @field util Utilities and monkeypatching module (@{util}).
 exports = {
 	init: ((new_config)-> exports.config[k] = v for k, v in pairs(new_config))
-	config: {} -- until `init` is called
+	config: package.loaded.config -- until `init` is called
 	state: require "potato.state"
 	client: require "potato.client"
 	util: require "potato.util"
+	tls: require "potato.tls"
 }
 
 return exports
