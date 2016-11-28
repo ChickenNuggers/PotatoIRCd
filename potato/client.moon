@@ -123,7 +123,7 @@ class client
 		switch data.command
 			when "PASS" -- PASS <password>
 				if not @config.password
-					@sent_password = hash data.arguments[1]
+					@received_password = hash data.arguments[1]
 				else
 					if hash data.arguments[1] != @config.password
 						@fatal "Incorrect password."
@@ -147,7 +147,6 @@ class client
 	--- Send `QUIT` to every channel the user is in; terminate connection.
 	-- @tparam string message Message to send to clients
 	quit: (message)=>
-		-- ::TODO:: remove channels if user is in last
 		users_already_sent = {}
 		for channel in *@channels
 			channel.users[@nick] = nil
@@ -155,6 +154,10 @@ class client
 				if not users_already_sent[user]
 					users_already_sent[user] = true
 					user.socket\write "#{@prefix} QUIT :#{message}\n"
+			if #channel.users == 0
+				-- clean up
+				-- ::TODO:: check if channel is registered then commit to db
+				state.channels[channel.name] = nil
 		for user in *@monitored_by -- MONITOR command
 			user.monitors[@nick] = nil
 			if not users_already_sent[user]
