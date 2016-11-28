@@ -6,6 +6,19 @@
 import compile from require "re"
 import dofile from require "moonscript.base"
 digest = require "openssl.digest"
+log = require "log"
+stp = require "StackTracePlus"
+
+--- Log output with StackTracePlus and log module
+-- @tparam string error_message Received error value
+handle_error = (error_message)->
+	error_message = tostring(error_message)
+	for line in error_message\gmatch "[^\r\n]+"
+		log.fatal line
+	for line in stp.stacktrace!\gmatch "[^\r\n]+"
+		log.fatal line
+
+error_message = "Config error: Bad value for %s: %s"
 
 --- Check if type `name` exists in config
 -- @lfunction check
@@ -14,7 +27,7 @@ digest = require "openssl.digest"
 -- @tparam function filter Function to act as verification filter (can be nil)
 check = (config, name, filter)->
 	assert filter(config[name]),
-		"Bad value for #{name}: #{config[name]}" if filter
+		error_message\format(name, config[name]) if filter
 	error "Missing field #{name}" if not config[name]
 
 --- Set a value if it does not exist, then check with a filter
@@ -27,7 +40,7 @@ default = (config, name, value, filter)->
 	if not config[name]
 		config[name] = value
 	elseif filter
-		assert filter(config[name]), "Bad value for #{name}: #{config[name]}"
+		assert filter(config[name]), error_message\format(name, config[name])
 
 --- Verifies if an input is a string (used in @{check_config})
 -- @tparam string input Verifiable input
@@ -88,7 +101,7 @@ transform_value = (escaped_value)->
 serialize_tag_value = (unescaped_string)->
 	return unescaped_string\gsub "[; \\\r\n]", {
 		";": "\\:"
-		" ": "\s"
+		" ": "\\s"
 		"\\": "\\\\"
 		"\r": "\\r"
 		"\n": "\\n"
@@ -129,5 +142,5 @@ hash = (input, algorithm="sha512")-> base16 digest.new(algorithm)\final(input)
 
 {
 	:line_pattern, :load_config, :check_config, :base16, :hash
-	:serialize_tag_value
+	:serialize_tag_value, :handle_error
 }
