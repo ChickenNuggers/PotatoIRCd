@@ -3,7 +3,7 @@ local _G = _G
 local string, io, debug, coroutine = string, io, debug, coroutine
 
 -- functions
-local tostring, print, require = tostring, print, require
+local tostring, require = tostring, require
 local next, assert = next, assert
 local pcall, type, pairs, ipairs = pcall, type, pairs, ipairs
 local error = error
@@ -106,25 +106,20 @@ end
 -- Returns '(anonymous)' if no function name was found in the line
 local function ParseLine(line)
 	assert(type(line) == "string")
-	--print(line)
 	local match = line:match("^%s*function%s+(%w+)")
 	if match then
-		--print("+++++++++++++function", match)
 		return match
 	end
 	match = line:match("^%s*local%s+function%s+(%w+)")
 	if match then
-		--print("++++++++++++local", match)
 		return match
 	end
 	match = line:match("^%s*local%s+(%w+)%s+=%s+function")
 	if match then
-		--print("++++++++++++local func", match)
 		return match
 	end
 	match = line:match("%s*function%s*%(")	-- this is an anonymous function
 	if match then
-		--print("+++++++++++++function2", match)
 		return "(anonymous)"
 	end
 	return "(anonymous)"
@@ -135,11 +130,9 @@ end
 -- It parses either the file or the string where the function is defined.
 -- Returns '?' if the line where the function is defined is not found
 local function GuessFunctionName(info)
-	--print("guessing function name")
 	if type(info.source) == "string" and info.source:sub(1,1) == "@" then
 		local file, err = io_open(info.source:sub(2), "r")
 		if not file then
-			print("file not found: "..tostring(err))	-- whoops!
 			return "?"
 		end
 		local line
@@ -147,7 +140,6 @@ local function GuessFunctionName(info)
 			line = file:read("*l")
 		end
 		if not line then
-			print("line not found")	-- whoops!
 			return "?"
 		end
 		return ParseLine(line)
@@ -162,7 +154,6 @@ local function GuessFunctionName(info)
 			end
 		end
 		if not line then
-			print("line not found")	-- whoops!
 			return "?"
 		end
 		return ParseLine(line)
@@ -272,7 +263,6 @@ function Dumper:DumpLocals (level)
 				if source:sub(2,7) == "string" then
 					source = source:sub(9)	-- uno más, por el espacio que viene (string "Baragent.Main", por ejemplo)
 				end
-				--for k,v in pairs(info) do print(k,v) end
 				fun_name = fun_name or GuessFunctionName(info)
 				self:add_f("%s%s = Lua function '%s' (defined at line %d of chunk %s)\r\n", prefix, name, fun_name, info.linedefined, source)
 			end
@@ -336,7 +326,6 @@ function _M.stacktrace(thread, message, level)
 Stack Traceback
 ===============
 ]]
-	--print(error_message)
 	
 	local level_to_show = level
 	if dumper.dumping_same_thread then level = level + 1 end
@@ -350,14 +339,10 @@ Stack Traceback
 				dumper:add_f("(%d) main chunk of %s at line %d\r\n", level_to_show, info.short_src, info.currentline)
 			end
 		elseif info.what == "C" then
-			--print(info.namewhat, info.name)
-			--for k,v in pairs(info) do print(k,v, type(v)) end
 			local function_name = m_user_known_functions[info.func] or m_known_functions[info.func] or info.name or tostring(info.func)
 			dumper:add_f("(%d) %s C function '%s'\r\n", level_to_show, info.namewhat, function_name)
 			--dumper:add_f("%s%s = C %s\r\n", prefix, name, (m_known_functions[value] and ("function: " .. m_known_functions[value]) or tostring(value)))
 		elseif info.what == "tail" then
-			--print("tail")
-			--for k,v in pairs(info) do print(k,v, type(v)) end--print(info.namewhat, info.name)
 			dumper:add_f("(%d) tail call\r\n", level_to_show)
 			dumper:DumpLocals(level)
 		elseif info.what == "Lua" then
@@ -368,7 +353,6 @@ Stack Traceback
 			end
 			local was_guessed = false
 			if not function_name or function_name == "?" then
-				--for k,v in pairs(info) do print(k,v, type(v)) end
 				function_name = GuessFunctionName(info)
 				was_guessed = true
 			end
