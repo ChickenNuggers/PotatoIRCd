@@ -28,9 +28,9 @@ SOFTWARE.
 ]]
 
 cqueues = require "cqueues"
-socket = require "socket"
+socket = require "cqueues.socket"
 log = require "log"
-{util: {:load_config, :check_config, :hash}
+{util: {:load_config, :check_config, :hash, :handle_error}
 :client
 :init
 :config
@@ -50,25 +50,27 @@ if args.g
 	os.execute "stty echo"
 	os.exit!
 
-print!
-print line for line in io.lines "asciilogo"
-print!
-print "Version 0.1.0-alpha"
-print!
+log.info!
+log.info line for line in io.lines "asciilogo"
+log.info!
+log.info "Version 0.1.0-alpha"
+log.info!
 
-init check_config load_config args.c
+main = ()->
+	init check_config load_config args.c
 
-state.config = config
-state.tls_ctx = context_from_pair unpack config.ssl_ctx
+	state.config = config
+	state.tls_ctx = context_from_pair unpack config.ssl_ctx
 
-server = socket.listen config.hostname, config.port
-loop = cqueues.new!
+	server = socket.listen config.hostname, config.port
+	loop = cqueues.new!
 
-loop\wrap ->
-	for client in server\clients do
-		loop\wrap -> client(client)
+	loop\wrap ->
+		for client in server\clients do
+			loop\wrap -> client(client)
 
-while not loop\empty!
-	with ok, err = pcall loop.step, loop
-		if not ok
-			log.error err
+	while not loop\empty!
+		with ok, err = pcall loop.step, loop
+			if not ok
+				log.error err
+xpcall main, handle_error
